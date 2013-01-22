@@ -1,34 +1,92 @@
-HOST: http://www.google.com/
+HOST: http://api.weave.sh/
 
---- Sample API v2 ---
+--- Weave API v.1 ---
 ---
-Welcome to the our sample API documentation. All comments can be written in (support [Markdown](http://daringfireball.net/projects/markdown/syntax) syntax)
+Welcome to the our API documentation. Comments enabled (supports [Markdown](http://daringfireball.net/projects/markdown/syntax) syntax)
 ---
 
 --
-Shopping Cart Resources
-The following is a section of resources related to the shopping cart
+Interface Builder
 --
-List products added into your shopping-cart. (comment block again in Markdown)
-GET /shopping-cart
+Retrieve Interface
+GET /
+> Accept: text/html
+< 200
+<html><head><script src="/ui/default.js"/></head><body><div id="ui"></div></body></html>
+
+
+Retrieve Menu - not logged in
+GET /
+> Accept: application/json
+< 200
+{ "menu" : [
+    "About" : "/ui/about",
+    "Login" : "/ui/login",
+    "Contact" : "/ui/contact"
+]}
+
+
+
+--
+Compute Queue
+Communicate with work queues
+--
+List active queue channel
+GET /queues
+> Accept: application/json
 < 200
 < Content-Type: application/json
-{ "items": [
-  { "url": "/shopping-cart/1", "product":"2ZY48XPZ", "quantity": 1, "name": "New socks", "price": 1.25 }
+{ "pull": [
+  { "vendors": [
+        { "plura": [
+            { "name": "Plura Processing",
+            "type": "java",
+            "uri": "/queue/plura", 
+            "channels": [
+                { "anonymous": "0",
+                "personal": "42",
+                "kokofoundation": "kokofoundation" }
+            ],
+            "rate": .00001 }
+        ],
+        "local": [
+            { "name": "Personal Cloud",
+            "type": "javascript",
+            "uri": "/queue/local",
+            "channels": [
+                { "personal": "0" }
+            ],
+            "rate": 0 }
+        ] }
+    ] }
+] }
+    
+    
+Create Work Session
+POST /queue/{vendor}/
+> Accept: application/json
+< 200
+{ "identity": "anonymous", "terms": "/vendor/{vendor}/tos/{sessionid}", "sessionid": "{sessionid}" }
+
+
+Generate queue worker id
+GET /queue/plura/0
+> Accept: application/json
+< 200
+{ "identity": "anonymous",
+  "queueid": "
+  }
+
+
+Account Balances
+GET /account/{id}
+< 200
+{
+      "promises": [
+          "kickstarter.com":  "1328500402",
+          "lovemachine.sendlove.us": [ 1, 5, 6, 7, 36, 267, 268 ]
+      ]
+  ], "quantity": 1, "name": "New socks", "price": 1.25 }
 ] }
 
-Save new products in your shopping cart
-POST /shopping-cart
-> Content-Type: application/json
-{ "product":"1AB23ORM", "quantity": 2 }
-< 201
-< Content-Type: application/json
-{ "status": "created", "url": "/shopping-cart/2" }
 
-
--- Payment Resources --
-This resource allows you to submit payment information to process your *shopping cart* items
-POST /payment
-{ "cc": "12345678900", "cvc": "123", "expiry": "0112" }
-< 200
-{ "receipt": "/payment/receipt/1" }
